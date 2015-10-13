@@ -30,7 +30,7 @@ export PATH	:=	$(DEVKITARM)/bin:$(PATH)
 # LIBDIRS	: List of library directories
 # General note: use . for the current dir, don't leave them empty.
 
-export PROJ	?= $(notdir $(CURDIR))
+export PROJ	?= CPE481f15
 TITLE		:= $(PROJ)
 
 LIBS		:= -ltonc
@@ -65,7 +65,7 @@ CFLAGS	+= -Wall
 CFLAGS	+= $(INCLUDE)
 CFLAGS	+= -ffast-math -fno-strict-aliasing
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -fpermissive
 
 ASFLAGS	:= $(ARCH)
 LDFLAGS := $(ARCH) -Wl,-Map,$(PROJ).map
