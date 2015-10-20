@@ -33,7 +33,7 @@ int main(){
 		ATTR0_SQUARE,
 		ATTR1_SIZE_64,
 		ATTR2_PALBANK(pb)|tid);
-	
+	//obj_set_pos(samus, samus.xpos, samus.ypos);
 	obj_set_pos(metr, metroid.xpos, metroid.ypos);
 	
 	for( ; ;){
