@@ -3,12 +3,12 @@
 
 //======================================================================
 //
-//	samusrunR, 400x40@8, 
+//	samusrunR, 8x1600@4, 
 //	+ palette 16 entries, not compressed
-//	+ 250 tiles Metatiled by 5x5 not compressed
-//	Total size: 32 + 16000 = 16032
+//	+ 200 tiles Metatiled by 1x4 not compressed
+//	Total size: 32 + 6400 = 6432
 //
-//	Time-stamp: 2015-10-19, 20:49:01
+//	Time-stamp: 2015-10-26, 22:20:53
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.3
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -17,11 +17,11 @@
 #ifndef GRIT_SAMUSRUNR_H
 #define GRIT_SAMUSRUNR_H
 
-#define samusrunRTilesLen 16000
-extern const unsigned short samusrunRTiles[8000];
+#define samusrunRTilesLen 6400
+extern const unsigned int samusrunRTiles[1600];
 
 #define samusrunRPalLen 32
-extern const unsigned short samusrunRPal[16];
+extern const unsigned int samusrunRPal[8];
 
 #endif // GRIT_SAMUSRUNR_H
 

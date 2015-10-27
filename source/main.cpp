@@ -1,5 +1,6 @@
 #include <tonc.h>
 #include "metr.h"  //metroid object
+#include "samusrunR.h"
 #include "Monster.h" //moster class
 
 #include <string.h>
@@ -23,32 +24,55 @@ int main(){
 	metroid.initMonster(metrPal, metrPalLen, metrTiles, metrTilesLen);
 	initMain();
 	metroid.loadtoVram();
+	memcpy(&tile_mem[4][1], samusrunRTiles, samusrunRTilesLen);
+	memcpy(pal_obj_mem, samusrunRPal, samusrunRPalLen);
 	oam_init(obj_buffer, 128);
 	REG_DISPCNT = DCNT_OBJ | DCNT_OBJ_1D;
 	metroid.xpos = 96;
 	metroid.ypos = 32;
+	int xpos = 32;
+	int ypos = 60;
 	u32 tid = 0, pb = 0;
 	OBJ_ATTR *metr = &obj_buffer[0];
-	obj_set_attr(metr, 
-		ATTR0_SQUARE,
-		ATTR1_SIZE_64,
-		ATTR2_PALBANK(pb)|tid);
-	//obj_set_pos(samus, samus.xpos, samus.ypos);
-	obj_set_pos(metr, metroid.xpos, metroid.ypos);
-	
+	OBJ_ATTR *samu[5];
+	samu[0] = &obj_buffer[1];
+	samu[1] = &obj_buffer[2];
+	samu[2] = &obj_buffer[3];
+	samu[3] = &obj_buffer[4];
+	samu[4] = &obj_buffer[5];
+	for(int i=0; i<5; i++){
+		obj_set_attr(samu[i], ATTR0_WIDE, ATTR1_SIZE_16, ATTR2_PALBANK(pb)|(tid+1+4*i));
+		obj_set_pos(samu[i], xpos, ypos+(8*i));
+	}
+	//obj_set_pos(metr, metroid.xpos, metroid.ypos);
+	int numframe=0;
+	int framerate=0;
 	for( ; ;){
 		vid_vsync();
 		key_poll();
-		metroid.xpos += 2*key_tri_horz();
-		metroid.ypos += 2*key_tri_vert();
-		tid += bit_tribool(key_hit(-1), KI_R, KI_L);
-		
+		xpos += 2*key_tri_horz();
+		ypos += 2*key_tri_vert();
+		tid = numframe*20; //frame per press
+		framerate++;
+		if(framerate==6){
+			numframe++;
+			framerate =0;
+			if (numframe == 10)
+				numframe = 0;
+		}
 		if(key_hit(KEY_START))
 			REG_DISPCNT ^= DCNT_OBJ_1D;
 		
-		metr->attr2 = ATTR2_BUILD(tid, pb, 0);
+		//metr->attr2 = ATTR2_BUILD(tid, pb, 0);
+		
 		obj_set_pos(metr, metroid.xpos, metroid.ypos);
-		oam_copy(oam_mem, obj_buffer, 1);
+		for(int i=0; i<5; i++){
+			samu[i]->attr2 = ATTR2_BUILD(tid+1+i*4, pb, 0);
+			obj_set_pos(samu[i], xpos, ypos+i*8);
+		}
+		//oam_copy(oam_mem, obj_buffer, 1);
+		//oam_copy(oam_mem, obj_buffer, 2);
+		oam_copy(oam_mem, obj_buffer, 6);
 	}
 	return 0;
 	}			
