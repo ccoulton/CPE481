@@ -16,24 +16,35 @@ OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
 void initMain(){
 	irq_init(NULL);
 	irq_add(II_VBLANK, NULL);
-	//REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_OBJ | DCNT_OBJ_1D | DCNT_WIN0;
+	REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_OBJ | DCNT_OBJ_1D | DCNT_WIN0;
 	return;
 }
 int main(){
-	Monster metroid;
-	metroid.initMonster(metrPal, metrPalLen, metrTiles, metrTilesLen);
+	REG_DISPCNT = DCNT_MODE0 | DCNT_BG0;
+	tte_init_se_default(0, BG_CBB(0)|BG_SBB(31));
+	tte_write("#{P:72,135}");
+	tte_write("Press start!");
+	REG_DISPCNT = DCNT_MODE3;
+	while (1){
+		vid_vsync();
+		key_poll();
+		if(key_hit(KEY_START))
+			break;
+	}
+	//Monster metroid;
+	//metroid.initMonster(metrPal, metrPalLen, metrTiles, metrTilesLen);
 	initMain();
-	metroid.loadtoVram();
-	memcpy(&tile_mem[4][1], samusrunRTiles, samusrunRTilesLen);
+	//metroid.loadtoVram();
+	memcpy(&tile_mem[4][0], samusrunRTiles, samusrunRTilesLen);
 	memcpy(pal_obj_mem, samusrunRPal, samusrunRPalLen);
 	oam_init(obj_buffer, 128);
 	REG_DISPCNT = DCNT_OBJ | DCNT_OBJ_1D;
-	metroid.xpos = 96;
-	metroid.ypos = 32;
+	//metroid.xpos = 96;
+	//metroid.ypos = 32;
 	int xpos = 32;
 	int ypos = 60;
 	u32 tid = 0, pb = 0;
-	OBJ_ATTR *metr = &obj_buffer[0];
+	//OBJ_ATTR *metr = &obj_buffer[0];
 	OBJ_ATTR *samu[5];
 	samu[0] = &obj_buffer[1];
 	samu[1] = &obj_buffer[2];
@@ -41,9 +52,10 @@ int main(){
 	samu[3] = &obj_buffer[4];
 	samu[4] = &obj_buffer[5];
 	for(int i=0; i<5; i++){
-		obj_set_attr(samu[i], ATTR0_WIDE, ATTR1_SIZE_16, ATTR2_PALBANK(pb)|(tid+1+4*i));
+		obj_set_attr(samu[i], ATTR0_WIDE, ATTR1_SIZE_16, ATTR2_PALBANK(pb)|(tid+4*i));
 		obj_set_pos(samu[i], xpos, ypos+(8*i));
 	}
+	//obj_set_attr(metr, ATTR0_SQUARE, ATTR1_SIZE_32, ATTR2_PALBANK(pb)|tid);
 	//obj_set_pos(metr, metroid.xpos, metroid.ypos);
 	int numframe=0;
 	int framerate=0;
@@ -65,9 +77,9 @@ int main(){
 		
 		//metr->attr2 = ATTR2_BUILD(tid, pb, 0);
 		
-		obj_set_pos(metr, metroid.xpos, metroid.ypos);
+		//obj_set_pos(metr, metroid.xpos, metroid.ypos);
 		for(int i=0; i<5; i++){
-			samu[i]->attr2 = ATTR2_BUILD(tid+1+i*4, pb, 0);
+			samu[i]->attr2 = ATTR2_BUILD(tid+i*4, pb, 0);
 			obj_set_pos(samu[i], xpos, ypos+i*8);
 		}
 		//oam_copy(oam_mem, obj_buffer, 1);
