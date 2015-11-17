@@ -25,7 +25,6 @@ int main(){
 	tte_init_se_default(0, BG_CBB(0)|BG_SBB(31));
 	tte_write("#{P:72,135}");
 	tte_write("Press start!");
-	REG_DISPCNT = DCNT_MODE3;
 	while (1){
 		vid_vsync();
 		key_poll();
@@ -34,12 +33,13 @@ int main(){
 	}
 	Monster metroid;
 	metroid.initMonster(metrPal, metrPalLen, metrTiles, metrTilesLen);
-	initMain();
+	//initMain();
 	metroid.loadtoVram();
 	memcpy(&tile_mem[4][offset], samusrunRTiles, samusrunRTilesLen);
 	memcpy(pal_obj_mem, samusrunRPal, samusrunRPalLen);
 	oam_init(obj_buffer, 128);
-	REG_DISPCNT = DCNT_OBJ | DCNT_OBJ_1D;
+	//REG_DISPCNT = DCNT_OBJ | DCNT_OBJ_1D;
+	initMain();
 	metroid.xpos = 96;
 	metroid.ypos = 32;
 	int xpos = 32;

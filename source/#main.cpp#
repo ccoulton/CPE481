@@ -1,8 +1,7 @@
 #include <tonc.h>
 #include "metr.h"  //metroid object
 #include "samusrunR.h"
-#include "Monster.h" //monster class
-#include "brin.h"
+#include "Monster.h" //moster class
 
 #include <string.h>
 #include <stdio.h>
@@ -13,7 +12,7 @@
 //Screen is [10+15*240] RGB16(0,31,0)
 OBJ_ATTR obj_buffer[128];
 OBJ_AFFINE *obj_aff_buffer = (OBJ_AFFINE*)obj_buffer;
-int offset = 64;
+int offset = 32;
 
 void initMain(){
 	irq_init(NULL);
@@ -21,40 +20,29 @@ void initMain(){
 	//REG_DISPCNT= DCNT_MODE0 | DCNT_BG0 | DCNT_BG1 | DCNT_OBJ | DCNT_OBJ_1D | DCNT_WIN0;
 	return;
 }
-
-void title_Screen(){
-    REG_DISPCNT = DCNT_MODE0 | DCNT_BG0;
-    tte_init_se_default(0, BG_CBB(0)|BG_SBB(31));
-    tte_write("#{P:72,135}");
-    tte_write("Press start!");
-    tte_write("#{P:72,90}");
-    while (1){
-        vid_vsync();
-        key_poll();
-        if(key_hit(KEY_START))
-            break;
-    }
-}
-
 int main(){
-    title_Screen();
-    memcpy(pal_bg_mem, brinPal, brinPalLen);
-    memcpy(&tile_mem[0][0], brinTiles, brinTilesLen);
-    memcpy(&se_mem[30][0], brinMap, brinMapLen);
-    REG_BG0CNT = BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
+	REG_DISPCNT = DCNT_MODE0 | DCNT_BG0;
+	tte_init_se_default(0, BG_CBB(0)|BG_SBB(31));
+	tte_write("#{P:72,135}");
+	tte_write("Press start!");
+	while (1){
+		vid_vsync();
+		key_poll();
+		if(key_hit(KEY_START))
+			break;
+	}
 	Monster metroid;
 	metroid.initMonster(metrPal, metrPalLen, metrTiles, metrTilesLen);
 	initMain();
 	metroid.loadtoVram();
 	memcpy(&tile_mem[4][offset], samusrunRTiles, samusrunRTilesLen);
-	//memcpy(pal_obj_mem, samusrunRPal, samusrunRPalLen);
+	memcpy(pal_obj_mem, samusrunRPal, samusrunRPalLen);
 	oam_init(obj_buffer, 128);
-	REG_DISPCNT = DCNT_MODE0 | DCNT_BG0 | DCNT_OBJ | DCNT_OBJ_1D;
+	REG_DISPCNT = DCNT_OBJ | DCNT_OBJ_1D;
 	metroid.xpos = 96;
 	metroid.ypos = 32;
 	int xpos = 32;
 	int ypos = 60;
-    int x = 192, y= 64;
 	u32 tid = 0, pb = 0;
 	OBJ_ATTR *metr = &obj_buffer[0];
 	OBJ_ATTR *samu[5];
@@ -67,7 +55,7 @@ int main(){
 		obj_set_attr(samu[i], ATTR0_WIDE, ATTR1_SIZE_16, ATTR2_PALBANK(pb)|(tid+offset+4*i));
 		obj_set_pos(samu[i], xpos, ypos+(8*i));
 	}
-	obj_set_attr(metr, ATTR0_SQUARE, ATTR1_SIZE_64, ATTR2_PALBANK(pb)|tid);
+	obj_set_attr(metr, ATTR0_SQUARE, ATTR1_SIZE_32, ATTR2_PALBANK(pb)|tid);
 	obj_set_pos(metr, metroid.xpos, metroid.ypos);
 	int numframe=0;
 	int framerate=0;
@@ -76,12 +64,10 @@ int main(){
 		vid_vsync();
 		key_poll();
 		xpos += 2*key_tri_horz();
-        x += key_tri_horz();
 		ypos += 2*key_tri_vert();
-        y += key_tri_vert();
 		samustile = numframe*20; //frame per press
 		framerate++;
-		if(framerate==4){
+		if(framerate==6){
 			numframe++;
 			framerate =0;
 			if (numframe == 10)
@@ -97,8 +83,6 @@ int main(){
 			samu[i]->attr2 = ATTR2_BUILD(samustile+offset+i*4, pb, 0);
 			obj_set_pos(samu[i], xpos, ypos+i*8);
 		}
-        REG_BG0HOFS=x;
-        REG_BG0VOFS=y;
 		//oam_copy(oam_mem, obj_buffer, 1);
 		//oam_copy(oam_mem, obj_buffer, 2);
 		oam_copy(oam_mem, obj_buffer, 6);
