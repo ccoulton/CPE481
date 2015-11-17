@@ -23,9 +23,9 @@ void initMain(){
 int main(){
 	REG_DISPCNT = DCNT_MODE0 | DCNT_BG0;
 	tte_init_se_default(0, BG_CBB(0)|BG_SBB(31));
-	tte_write("#{P:72,90}");
+	tte_write("#{P:72,135}");
 	tte_write("Press start!");
-	//REG_DISPCNT = DCNT_MODE3;
+	REG_DISPCNT = DCNT_MODE3;
 	while (1){
 		vid_vsync();
 		key_poll();
