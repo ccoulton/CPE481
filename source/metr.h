@@ -14,8 +14,8 @@
 #ifndef __METR__
 #define __METR__
 
-#define metrPalLen 64
-extern const unsigned int metrPal[16];
+#define metrPalLen 128
+extern const unsigned int metrPal[64];
 
 #define metrTilesLen 2048
 extern const unsigned int metrTiles[512];

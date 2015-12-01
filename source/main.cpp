@@ -18,6 +18,7 @@ int offset = 64;
 int samx = 48, samy = 104; //samus starting pos
 int mapx = MAPX;
 int mapy = MAPY; //map position
+bool released = false;
 
 void initMain(){
 	irq_init(NULL);
@@ -50,33 +51,52 @@ void loadBG(){
 
 void check_input(bool &jumping, int &screenSpeed){
     key_poll();
-    
+    //control left and right.
     if (key_tri_horz() > 0)
         samx += 3*key_tri_horz()-2*screenSpeed; //samus move
     else if (key_tri_horz() < 0)
         samx += 1*key_tri_horz()-2*screenSpeed;
     else
         samx += -screenSpeed;
-    
+    //hold the screen till a button is hit.
     if (screenSpeed == 0 && key_tri_horz() >0)
         screenSpeed++; //start the screen scrolling
     mapx += 2*screenSpeed;
-    if(key_hit(KEY_A)&&!jumping){
-        jumping = !jumping;
-        samy -= 2;
+    //jumping logic...
+    if (!jumping){
+        if(key_hit(KEY_A)){
+            jumping = !jumping;
+            samy -= 3;
+            released = !released;
+        }
     }
-    else if (jumping && key_held(KEY_A))
-        samy -= 2;
-    else if(samy == 104 && jumping) //reset the jumping flag
-        jumping = !jumping;
-    else if (jumping) //falling
-        samy +=2;
-    
+    else if (jumping){
+        if (!released){
+            if (key_held(KEY_A))
+                samy -= 3;
+            else if (key_released(KEY_A) || key_is_up(KEY_A))
+                released = !released;
+        }
+        else if(samy >= 104){ //reset the jumping flag
+            jumping = !jumping;
+            samy = 104;
+        }
+        else
+            samy += 4;
+    }
     //clamp samus position to the screen
     if (samx <0)
         samx = 0;
     else if (samx > 208)
         samx = 208;
+    //scroll the screen if your high enough
+    if (samy <= 70)
+        mapy -= 1;
+    else if (samy > 70 && mapy != 64)
+        mapy += 1;
+    //cap the screen
+    if (samy <=20)
+        released = true;
 }
 
 int main(){
@@ -124,10 +144,14 @@ int main(){
                 if (numframe == 10)
                     numframe = 0;
             }
+            if ((metroid.xpos + 32) >= (samx +16))
+                break;
+            else
+                metroid.xpos +=1*screenSpeed;
             metr->attr2 = ATTR2_BUILD(tid, pb, 0);
             obj_set_pos(metr, metroid.xpos, metroid.ypos);
             for(int i=0; i<5; i++){
-                samu[i]->attr2 = ATTR2_BUILD(samustile+offset+i*4, pb, 0);
+                samu[i]->attr2 = ATTR2_BUILD(samustile+offset+i*4, 2, 0);
                 obj_set_pos(samu[i], samx, samy+i*8);
             }
             REG_BG0HOFS=mapx;
@@ -135,7 +159,11 @@ int main(){
             oam_copy(oam_mem, obj_buffer, 6);
         }
         //do stuff after metroid touches you x times
-        quit = true;
-    }while(quit);
-	return 0;
+        //quit = true;
+        samy = 104;
+        samx = 48;
+        jumping = false;
+        released = true;
+    }while(!quit);
+    return 0;
 	}			

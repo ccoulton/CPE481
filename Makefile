@@ -78,7 +78,7 @@ ifeq ($(strip $(bMB)), 1)
 else
 	TARGET	:= $(PROJ)
 endif
-	
+
 # --- Save temporary files ? ---
 ifeq ($(strip $(bTEMPS)), 1)
 	CFLAGS	+= -save-temps
